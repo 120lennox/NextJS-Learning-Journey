@@ -2,7 +2,7 @@
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
 import { URLSearchParams } from 'next/dist/compiled/@edge-runtime/primitives/url';
-import { useSearchParams } from 'next/navigation';
+import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function Search({ placeholder }: { placeholder: string }) {
   //useSearchParams hook, captures the url that has been embeded with the search parameter
@@ -10,7 +10,20 @@ export default function Search({ placeholder }: { placeholder: string }) {
 
   function handleSearch(term: string){
     //URLSearchParams: this is an API that manipulates search queries into friendly url search parameters
-    const params = new URLSearchParams(searchParams)
+    const params = new URLSearchParams(searchParams);
+    const pathname = usePathname();
+    const {replace} = useRouter();
+
+    //the block below sets the url parameter based on the user's search input.
+    if(term){
+      params.set('query', term);
+    }
+    
+    //if the input field is empty then delete the query
+    else{
+      params.delete('query');
+    }
+    replace(`${pathname} ? ${params.toString()}`)
   }
 
   return (
@@ -22,8 +35,9 @@ export default function Search({ placeholder }: { placeholder: string }) {
         className="peer block w-full rounded-md border border-gray-200 py-[9px] pl-10 text-sm outline-2 placeholder:text-gray-500"
         placeholder={placeholder}
         onChange={(e)=>{
-          handleSearch(e.target.value);
+          handleSearch(e.target.value)
         }}
+        defaultValue={searchParams.get('query')?.toString()}
       />
       <MagnifyingGlassIcon className="absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-gray-500 peer-focus:text-gray-900" />
     </div>
