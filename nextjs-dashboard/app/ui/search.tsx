@@ -1,7 +1,6 @@
 'use client';
 
 import { MagnifyingGlassIcon } from '@heroicons/react/24/outline';
-import { URLSearchParams } from 'next/dist/compiled/@edge-runtime/primitives/url';
 import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 
 export default function Search({ placeholder }: { placeholder: string }) {
