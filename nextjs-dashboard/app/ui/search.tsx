@@ -12,11 +12,13 @@ export default function Search({ placeholder }: { placeholder: string }) {
 
 
   const handleSearch = useDebouncedCallback((term) =>{
-    
+
     //addding a debouncing code: captures search input and prints
     console.log(`Searching ...${term}`)
     //URLSearchParams: this is an API that manipulates search queries into friendly url search parameters
     const params = new URLSearchParams(searchParams);
+
+    params.set('page', '1');
 
     //the block below sets the url parameter based on the user's search input.
     if (term) {
