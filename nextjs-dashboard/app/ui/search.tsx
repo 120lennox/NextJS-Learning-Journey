@@ -6,12 +6,12 @@ import { useSearchParams, useRouter, usePathname } from 'next/navigation';
 export default function Search({ placeholder }: { placeholder: string }) {
   //useSearchParams hook, captures the url that has been embeded with the search parameter
   const searchParams = useSearchParams();
+  const pathname = usePathname();
+  const {replace} = useRouter();
 
   function handleSearch(term: string){
     //URLSearchParams: this is an API that manipulates search queries into friendly url search parameters
     const params = new URLSearchParams(searchParams);
-    const pathname = usePathname();
-    const {replace} = useRouter();
 
     //the block below sets the url parameter based on the user's search input.
     if(term){
