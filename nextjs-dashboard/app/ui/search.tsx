@@ -14,15 +14,12 @@ export default function Search({ placeholder }: { placeholder: string }) {
     const params = new URLSearchParams(searchParams);
 
     //the block below sets the url parameter based on the user's search input.
-    if(term){
+    if (term) {
       params.set('query', term);
-    }
-    
-    //if the input field is empty then delete the query
-    else{
+    } else {
       params.delete('query');
     }
-    replace(`${pathname} ? ${params.toString()}`)
+    replace(`${pathname}?${params.toString()}`);
   }
 
   return (
