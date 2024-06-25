@@ -16,6 +16,8 @@ const FormSchema = z.object({
 const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
 
+
+
 export async function createInvoice(formData: FormData) {
     //adding error handling technique. trying to solve customerID null error
 
@@ -52,4 +54,35 @@ export async function createInvoice(formData: FormData) {
 
     //redirection
     redirect('/dashboard/invoices');
+}
+
+//update invoice
+
+const UpdateInvoice = FormSchema.omit({ id: true, date: true });
+
+export async function updateInvoice(id: string, formData: FormData) {
+    const { customerID, amount, status } = UpdateInvoice.parse({
+      customerID: formData.get('customerId'),
+      amount: formData.get('amount'),
+      status: formData.get('status'),
+    });
+   
+    const amountInCents = Math.round(parseFloat(amount) * 100);
+   
+    await sql`
+      UPDATE invoices
+      SET customer_id = ${customerID}, amount = ${amountInCents}, status = ${status}
+      WHERE id = ${id}
+    `;
+   
+    revalidatePath('/dashboard/invoices');
+    redirect('/dashboard/invoices');
+  }
+
+
+  //delete invoice
+
+export async function deleteInvoice(id: string){
+    await sql `DELETE FROM invoices WHERE id = ${id}`
+    revalidatePath('/dashboard/invoice')
 }
