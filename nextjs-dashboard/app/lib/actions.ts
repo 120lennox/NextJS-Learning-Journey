@@ -44,9 +44,10 @@ export async function createInvoice(formData: FormData) {
     await sql 
                 `INSERT INTO invoices (customer_id, amount, status, date)
                  VALUES (${customerID}, ${amountInCents}, ${status}, ${date})`
+    return {message: 'invoice created successfully'}
     }catch(error){
         //error handling
-        console.error('failed to create an invoice', error)
+        return {message:'failed to create an invoice', error}
     }
 
     // revalidating path
@@ -77,9 +78,11 @@ export async function updateInvoice(id: string, formData: FormData) {
             SET customer_id = ${customerID}, amount = ${amountInCents}, status = ${status}
             WHERE id = ${id}
           `;
+
+          return {message:'updated an invoice'}
     }
     catch(error){
-        console.error('Failed to update invoice', error);
+        return {message:'Failed to update invoice', error}
     }
    
     revalidatePath('/dashboard/invoices');
@@ -89,13 +92,13 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   //delete invoice
 export async function deleteInvoice(id: string){
-    
     // handling deletion errors
     try{
         await sql `DELETE FROM invoices WHERE id = ${id}`
+        return {message:"Deleted an invoice"}
     }
     catch(error){
-        console.error('Failed to delete invoice', error);
+        return {message:'Failed to delete invoice', error};
     }
     revalidatePath('/dashboard/invoice')
 }
