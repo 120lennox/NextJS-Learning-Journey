@@ -2,10 +2,12 @@
 
 import {z} from 'zod'  //libray for validating typescript datatypes
 import { sql } from '@vercel/postgres';
+import { revalidatePath } from 'next/cache';
+import { redirect } from 'next/navigation';
 
 const FormSchema = z.object({
     id: z.string(),
-    customerID: z.string(),
+    customerID: z.string().nullable(),
     amount: z.coerce.string(), // coerce means it will change say from number to string during data transfer
     status: z.enum(['pending', 'paid']),
     date: z.string()
@@ -15,12 +17,20 @@ const CreateInvoice = FormSchema.omit({ id: true, date: true });
 
 
 export async function createInvoice(formData: FormData) {
-    const {customerID, amount, status} = FormSchema.parse({
-        //extracting data from form data
-        customerID: formData.get('customerID'),
-        amount: formData.get('amount'),
-        status: formData.get('status')
-    })
+    //adding error handling technique. trying to solve customerID null error
+
+    try{
+        const {customerID, amount, status} = CreateInvoice.parse({
+            //extracting data from form data
+    
+            customerID: formData.get('customerID'),
+            amount: formData.get('amount'),
+            status: formData.get('status')
+        })
+
+        if(!customerID){
+            throw new Error('Customer ID is required');
+        }
 
     //storing monetary values in cents. 
     const amountInCents = Math.round(parseFloat(amount) * 100)
@@ -31,6 +41,15 @@ export async function createInvoice(formData: FormData) {
     //entering the records into the database
     await sql 
                 `INSERT INTO invoices (customer_id, amount, status, date)
-                VALUES (${customerID}, ${amountInCents}, ${status}, ${date})`
-  
+                 VALUES (${customerID}, ${amountInCents}, ${status}, ${date})`
+    }catch(error){
+        //error handling
+        console.error('failed to create an invoice', error)
+    }
+
+    // revalidating path
+    revalidatePath('/dashboard/invoices');
+
+    //redirection
+    redirect('/dashboard/invoices');
 }
