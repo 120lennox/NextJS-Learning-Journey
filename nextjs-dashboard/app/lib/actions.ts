@@ -61,19 +61,26 @@ export async function createInvoice(formData: FormData) {
 const UpdateInvoice = FormSchema.omit({ id: true, date: true });
 
 export async function updateInvoice(id: string, formData: FormData) {
-    const { customerID, amount, status } = UpdateInvoice.parse({
-      customerID: formData.get('customerId'),
-      amount: formData.get('amount'),
-      status: formData.get('status'),
-    });
-   
-    const amountInCents = Math.round(parseFloat(amount) * 100);
-   
-    await sql`
-      UPDATE invoices
-      SET customer_id = ${customerID}, amount = ${amountInCents}, status = ${status}
-      WHERE id = ${id}
-    `;
+
+    // handling update errors
+    try{
+        const { customerID, amount, status } = UpdateInvoice.parse({
+            customerID: formData.get('customerId'),
+            amount: formData.get('amount'),
+            status: formData.get('status'),
+          });
+         
+          const amountInCents = Math.round(parseFloat(amount) * 100);
+         
+          await sql`
+            UPDATE invoices
+            SET customer_id = ${customerID}, amount = ${amountInCents}, status = ${status}
+            WHERE id = ${id}
+          `;
+    }
+    catch(error){
+        console.error('Failed to update invoice', error);
+    }
    
     revalidatePath('/dashboard/invoices');
     redirect('/dashboard/invoices');
@@ -81,8 +88,14 @@ export async function updateInvoice(id: string, formData: FormData) {
 
 
   //delete invoice
-
 export async function deleteInvoice(id: string){
-    await sql `DELETE FROM invoices WHERE id = ${id}`
+    
+    // handling deletion errors
+    try{
+        await sql `DELETE FROM invoices WHERE id = ${id}`
+    }
+    catch(error){
+        console.error('Failed to delete invoice', error);
+    }
     revalidatePath('/dashboard/invoice')
 }
