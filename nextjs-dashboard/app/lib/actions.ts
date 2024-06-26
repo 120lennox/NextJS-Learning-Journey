@@ -92,6 +92,7 @@ export async function updateInvoice(id: string, formData: FormData) {
 
   //delete invoice
 export async function deleteInvoice(id: string){
+    
     // handling deletion errors
     try{
         await sql `DELETE FROM invoices WHERE id = ${id}`
